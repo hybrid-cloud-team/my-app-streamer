@@ -176,7 +176,7 @@ def register():
             flash('Username already exists', 'error')
         else:
             # 비밀번호 암호화 저장 (보안 필수)
-            hashed_pw = generate_password_hash(password, method='sha256')
+            hashed_pw = generate_password_hash(password)
             new_user = User(username=username, password=hashed_pw)
             db.session.add(new_user)
             db.session.commit()
