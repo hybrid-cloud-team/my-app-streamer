@@ -1,0 +1,19 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: simple-streamer-hpa
+  namespace: streamer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: simple-streamer
+  minReplicas: 2   # 최소 2개는 항상 켜둬라 (고가용성)
+  maxReplicas: 10  # 트래픽이 몰리면 10개까지 늘려라
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50 # CPU 요청량(200m)의 50%가 넘으면 증설

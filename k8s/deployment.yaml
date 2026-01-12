@@ -4,7 +4,7 @@ metadata:
   name: simple-streamer
   namespace: streamer
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: simple-streamer
@@ -20,6 +20,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        resources:
+          requests:
+            cpu: "200m"    # 최소 0.2 코어 보장
+            memory: "256Mi" # 최소 256MB 메모리 보장
+          limits:
+            cpu: "500m"    # 최대 0.5 코어까지만 사용
+            memory: "512Mi" # 최대 512MB 메모리 사용
         env:
         - name: DB_HOST
           value: "hybrid-demo-db.c4dqgm4aut3y.us-east-1.rds.amazonaws.com" # RDS 엔드포인트 주소
