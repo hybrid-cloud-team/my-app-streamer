@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Cloud Streamer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #141414;
+            color: #ffffff;
+        }
+        .container {
+            min-height: 100vh;
+        }
+        .nav {
+            background-color: #000000;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        .nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav a:hover {
+            color: #e50914;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e50914;
+            margin-right: 30px;
+        }
+        .user-info {
+            color: #ffffff;
+            margin-right: 15px;
+        }
+        .content {
+            padding: 20px 50px;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .flash.flash {
+            background-color: #28a745;
+            color: white;
+        }
+        .flash.error {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <div class="nav-left">
+                <a href="/" class="logo">🎬 Streamer</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/">홈</a>
+                    <a href="/upload">업로드</a>
+                {% endif %}
+            </div>
+            <div class="nav-right">
+                {% if current_user.is_authenticated %}
+                    <span class="user-info">👤 {{ current_user.username }}</span>
+                    <a href="/logout">로그아웃</a>
+                {% else %}
+                    <a href="/login">로그인</a>
+                    <a href="/register">회원가입</a>
+                {% endif %}
+            </div>
+        </nav>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

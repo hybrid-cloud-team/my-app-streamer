@@ -1,6 +1,6 @@
 import os
 import boto3
-from flask import Flask, render_template_string, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -55,57 +55,13 @@ class Video(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- HTML 템플릿 (로그인/가입 UI 추가) ---
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Hybrid Cloud Demo</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .nav { margin-bottom: 20px; padding: 10px; background: #eee; border-radius: 5px; }
-        .nav a { margin: 0 10px; text-decoration: none; color: #333; font-weight: bold; }
-        .video-box { margin: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        input { padding: 10px; margin: 5px; width: 200px; }
-        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .flash { color: green; font-weight: bold; }
-        .error { color: red; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="nav">
-            <a href="/">🏠 Home</a>
-            {% if current_user.is_authenticated %}
-                <span>👤 {{ current_user.username }}</span>
-                <a href="/logout">🚪 Logout</a>
-            {% else %}
-                <a href="/login">🔑 Login</a>
-                <a href="/register">📝 Register</a>
-            {% endif %}
-        </div>
-
-        <h1>🎬 Hybrid Cloud Streamer</h1>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <p class="{{ category }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% block content %}{% endblock %}
-    </div>
-</body>
-</html>
-"""
-
-# 홈 화면 (영상 목록)
+# 첫 화면 - 로그인 안 된 경우 로그인 페이지로 리다이렉트
 @app.route('/')
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    
+    # 로그인된 경우 동영상 목록 표시
     videos_db = Video.query.order_by(Video.id.desc()).all()
     videos_display = []
     
@@ -113,36 +69,19 @@ def index():
         try:
             url = s3_client.generate_presigned_url('get_object', Params={'Bucket': S3_BUCKET, 'Key': v.s3_key}, ExpiresIn=3600)
             videos_display.append({'title': v.title, 's3_key': v.s3_key, 'url': url, 'uploader': v.uploader})
-        except: pass
-
-    content = """
-    {% if current_user.is_authenticated %}
-        <div style="background: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h3>📤 Upload New Video</h3>
-            <form action="/upload" method="post" enctype="multipart/form-data">
-                <input type="text" name="title" placeholder="Video Title" required>
-                <input type="file" name="file" accept="video/*" required>
-                <button type="submit">Upload</button>
-            </form>
-        </div>
-    {% else %}
-        <p>🔒 <b>Login to upload videos.</b></p>
-    {% endif %}
+        except Exception as e:
+            print(f"Error generating URL for video {v.id}: {e}")
+            pass
     
-    <hr>
-    {% for video in videos %}
-        <div class="video-box">
-            <h3>{{ video.title }}</h3>
-            <video width="320" controls><source src="{{ video.url }}" type="video/mp4"></video>
-            <p>Uploaded by: {{ video.uploader if video.uploader else 'Anonymous' }}</p>
-        </div>
-    {% endfor %}
-    """
-    return render_template_string(HTML_TEMPLATE.replace('{% block content %}{% endblock %}', content), videos=videos_display)
+    return render_template('index.html', videos=videos_display)
 
 # 로그인 페이지
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # 이미 로그인된 경우 메인 페이지로 리다이렉트
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -150,73 +89,68 @@ def login():
         
         if user and check_password_hash(user.password, password):
             login_user(user)
-            flash('Login Successful!', 'flash')
+            flash('로그인 성공!', 'flash')
             return redirect(url_for('index'))
         else:
-            flash('Invalid username or password', 'error')
+            flash('사용자 이름 또는 비밀번호가 올바르지 않습니다.', 'error')
 
-    content = """
-    <h2>🔑 Login</h2>
-    <form method="post">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
-    </form>
-    """
-    return render_template_string(HTML_TEMPLATE.replace('{% block content %}{% endblock %}', content))
+    return render_template('login.html')
 
 # 회원가입 페이지
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    # 이미 로그인된 경우 메인 페이지로 리다이렉트
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         
         if User.query.filter_by(username=username).first():
-            flash('Username already exists', 'error')
+            flash('이미 존재하는 사용자 이름입니다.', 'error')
         else:
             # 비밀번호 암호화 저장 (보안 필수)
             hashed_pw = generate_password_hash(password)
             new_user = User(username=username, password=hashed_pw)
             db.session.add(new_user)
             db.session.commit()
-            flash('Account created! Please login.', 'flash')
+            flash('계정이 생성되었습니다! 로그인해주세요.', 'flash')
             return redirect(url_for('login'))
 
-    content = """
-    <h2>📝 Register</h2>
-    <form method="post">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Sign Up</button>
-    </form>
-    """
-    return render_template_string(HTML_TEMPLATE.replace('{% block content %}{% endblock %}', content))
+    return render_template('register.html')
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('Logged out.', 'flash')
-    return redirect(url_for('index'))
+    flash('로그아웃되었습니다.', 'flash')
+    return redirect(url_for('login'))
 
-@app.route('/upload', methods=['POST'])
+# 업로드 페이지 (GET) 및 업로드 처리 (POST)
+@app.route('/upload', methods=['GET', 'POST'])
 @login_required  # 로그인을 안 하면 업로드 불가!
 def upload():
-    title = request.form['title']
-    file = request.files['file']
-    if file:
-        filename = secure_filename(file.filename)
-        try:
-            s3_client.upload_fileobj(file, S3_BUCKET, filename, ExtraArgs={'ContentType': file.content_type})
-            # 업로더 정보도 같이 저장
-            new_video = Video(title=title, s3_key=filename, uploader=current_user.username)
-            db.session.add(new_video)
-            db.session.commit()
-            flash(f"Upload Success!", 'flash')
-        except Exception as e:
-            flash(f"Error: {str(e)}", 'error')
-    return redirect(url_for('index'))
+    if request.method == 'POST':
+        title = request.form['title']
+        file = request.files['file']
+        if file:
+            filename = secure_filename(file.filename)
+            try:
+                s3_client.upload_fileobj(file, S3_BUCKET, filename, ExtraArgs={'ContentType': file.content_type})
+                # 업로더 정보도 같이 저장
+                new_video = Video(title=title, s3_key=filename, uploader=current_user.username)
+                db.session.add(new_video)
+                db.session.commit()
+                flash('업로드 성공!', 'flash')
+                return redirect(url_for('index'))
+            except Exception as e:
+                flash(f'업로드 오류: {str(e)}', 'error')
+        else:
+            flash('파일을 선택해주세요.', 'error')
+    
+    # GET 요청 시 업로드 페이지 표시
+    return render_template('upload.html')
 
 @app.route('/health')
 def health(): return "OK", 200
