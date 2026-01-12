@@ -18,7 +18,7 @@ spec:
       - name: ecr-registry-secret
       containers:
       - name: simple-streamer
-        image: 635014547592.dkr.ecr.us-east-1.amazonaws.com/streamer:latest  # TODO: 실제 ECR 주소로 변경
+        image: 635014547592.dkr.ecr.us-east-1.amazonaws.com/streamer:bc869a5a94a8bc14e4204e0f0b00c9b9de2e4f55
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
