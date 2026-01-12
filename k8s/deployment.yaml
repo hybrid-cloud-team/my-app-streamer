@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-streamer
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-streamer
+  template:
+    metadata:
+      labels:
+        app: simple-streamer
+    spec:
+      containers:
+      - name: simple-streamer
+        # 1단계에서 만든 ECR 주소
+        image: 625572953167.dkr.ecr.us-east-1.amazonaws.com/simple_streamer:latest 
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "hybrid-demo-db.c4dqgm4aut3y.us-east-1.rds.amazonaws.com" # RDS 엔드포인트 주소
+        - name: DB_NAME
+          value: "postgres"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASS
+          value: "12345678" # (데모용이라 여기 씀, 실제론 Secret 권장)
+        - name: S3_BUCKET
+          value: "hybrid-demo-video-bucket-jki-2026"
+        - name: AWS_REGION
+          value: "us-east-1"
+        # 온프레미스 K8s가 AWS S3에 접근하기 위한 키 (EKS는 IRSA로 대체 가능하지만 통일성을 위해 주입)
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: app-secret  # 나중에 만들 Secret 이름
+              key: access-key
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: secret-key
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-streamer-svc
+  namespace: default
+spec:
+  type: LoadBalancer # 온프레미스는 MetalLB가 없다면 NodePort 사용
+  selector:
+    app: simple-streamer
+  ports:
+    - port: 80
+      targetPort: 8080
