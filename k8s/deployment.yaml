@@ -16,7 +16,7 @@ spec:
       containers:
       - name: simple-streamer
         # 1단계에서 만든 ECR 주소
-        image: 625572953167.dkr.ecr.us-east-1.amazonaws.com/simple_streamer:latest 
+        image: 625572953167.dkr.ecr.us-east-1.amazonaws.com/simple_streamer:c900eed98d4f9dd8f54238313fbfaa5eba4bf20f
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
