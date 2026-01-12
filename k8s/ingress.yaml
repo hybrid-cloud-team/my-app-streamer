@@ -4,10 +4,11 @@ metadata:
   name: simple-streamer-ingress
   namespace: streamer
   annotations:
-    # 헬스 체크나 바디 크기 제한 해제 (동영상 업로드 위해 필수)
-    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /
 spec:
-  ingressClassName: nginx  # 1단계에서 설치한 nginx controller를 사용
   rules:
   - http:
       paths:

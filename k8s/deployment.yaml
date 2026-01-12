@@ -13,9 +13,6 @@ spec:
       labels:
         app: simple-streamer
     spec:
-      # ECR 인증을 위한 imagePullSecrets (ECR Secret 생성 후 활성화)
-      imagePullSecrets:
-      - name: ecr-registry-secret
       containers:
       - name: simple-streamer
         image: 635014547592.dkr.ecr.us-east-1.amazonaws.com/streamer:latest  # TODO: 실제 ECR 주소로 변경
