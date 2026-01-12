@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = "secret_key_for_session" # 보안을 위해 필수
+app.secret_key = os.getenv("SECRET_KEY", "change-this-in-production") # 환경 변수에서 가져오기
 
 # 환경 변수 설정
 DB_HOST = os.getenv("DB_HOST")
@@ -155,7 +155,12 @@ def upload():
 @app.route('/health')
 def health(): return "OK", 200
 
-if __name__ == '__main__':
+# 데이터베이스 테이블 초기화 (앱 시작 시 한 번만 실행)
+def init_db():
     with app.app_context():
-        db.create_all() # 여기서 User 테이블이 자동으로 생성됩니다.
-    app.run(host='0.0.0.0', port=8080)
+        db.create_all()
+
+if __name__ == '__main__':
+    # 개발 환경에서만 직접 실행
+    init_db()
+    app.run(host='0.0.0.0', port=8080, debug=False)

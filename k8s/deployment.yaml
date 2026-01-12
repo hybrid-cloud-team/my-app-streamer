@@ -13,10 +13,12 @@ spec:
       labels:
         app: simple-streamer
     spec:
+      # ECR 인증을 위한 imagePullSecrets (ECR Secret 생성 후 활성화)
+      imagePullSecrets:
+      - name: ecr-registry-secret
       containers:
       - name: simple-streamer
-        # 1단계에서 만든 ECR 주소
-        image: 625572953167.dkr.ecr.us-east-1.amazonaws.com/simple_streamer:c900eed98d4f9dd8f54238313fbfaa5eba4bf20f
+        image: 635014547592.dkr.ecr.us-east-1.amazonaws.com/streamer:latest  # TODO: 실제 ECR 주소로 변경
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -29,28 +31,27 @@ spec:
             memory: "512Mi" # 최대 512MB 메모리 사용
         env:
         - name: DB_HOST
-          value: "hybrid-demo-db.c4dqgm4aut3y.us-east-1.rds.amazonaws.com" # RDS 엔드포인트 주소
+          value: "hybrid-prod-db.c8bacacucmpz.us-east-1.rds.amazonaws.com"
         - name: DB_NAME
-          value: "postgres"
+          value: "videodb"
         - name: DB_USER
           value: "postgres"
         - name: DB_PASS
-          value: "12345678" # (데모용이라 여기 씀, 실제론 Secret 권장)
+          value: "12345678"  # TODO: 실제 DB 비밀번호로 변경
         - name: S3_BUCKET
-          value: "hybrid-demo-video-bucket-jki-2026"
+          value: "prod-video-bucket-idac-2026"
         - name: AWS_REGION
           value: "us-east-1"
-        # 온프레미스 K8s가 AWS S3에 접근하기 위한 키 (EKS는 IRSA로 대체 가능하지만 통일성을 위해 주입)
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-              name: app-secret  # 나중에 만들 Secret 이름
+              name: app-secret
               key: access-key
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: app-secret
-              key: secret-key
+              key: secret-key-aws
 
 ---
 apiVersion: v1
