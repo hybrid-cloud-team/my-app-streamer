@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-streamer
-  namespace: default
+  namespace: streamer
 spec:
   replicas: 1
   selector:
@@ -50,7 +50,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: simple-streamer-svc
-  namespace: default
+  namespace: streamer
 spec:
   type: LoadBalancer # 온프레미스는 MetalLB가 없다면 NodePort 사용
   selector:
