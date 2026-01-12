@@ -59,7 +59,7 @@ metadata:
   name: simple-streamer-svc
   namespace: streamer
 spec:
-  type: LoadBalancer # 온프레미스는 MetalLB가 없다면 NodePort 사용
+  type: ClusterIP
   selector:
     app: simple-streamer
   ports:
