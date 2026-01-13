@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: simple-streamer
-        image: 635014547592.dkr.ecr.us-east-1.amazonaws.com/streamer:dfe8c67f9b8ef32cee249a58bc11bbd707723fe4
+        image: 635014547592.dkr.ecr.us-east-1.amazonaws.com/streamer:4b3792982f30e587b4dbf81b5ab557a7bdaf1880
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
