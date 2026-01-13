@@ -1,6 +1,6 @@
 import os
 import boto3
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -162,6 +162,9 @@ def delete_video(video_id):
     
     # 자신이 업로드한 동영상만 삭제 가능
     if video.uploader != current_user.username:
+        # AJAX 요청인 경우 JSON 응답
+        if request.headers.get('Accept') and 'application/json' in request.headers.get('Accept', ''):
+            return jsonify({'success': False, 'message': '삭제 권한이 없습니다.'}), 403
         flash('삭제 권한이 없습니다.', 'error')
         return redirect(url_for('index'))
     
@@ -169,8 +172,14 @@ def delete_video(video_id):
         # 데이터베이스에서만 삭제 (S3 파일은 삭제하지 않음)
         db.session.delete(video)
         db.session.commit()
+        # AJAX 요청인 경우 JSON 응답
+        if request.headers.get('Accept') and 'application/json' in request.headers.get('Accept', ''):
+            return jsonify({'success': True, 'message': '동영상이 삭제되었습니다.'}), 200
         flash('동영상이 삭제되었습니다.', 'flash')
     except Exception as e:
+        # AJAX 요청인 경우 JSON 응답
+        if request.headers.get('Accept') and 'application/json' in request.headers.get('Accept', ''):
+            return jsonify({'success': False, 'message': f'삭제 오류: {str(e)}'}), 500
         flash(f'삭제 오류: {str(e)}', 'error')
         db.session.rollback()
     
