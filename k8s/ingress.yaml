@@ -8,6 +8,14 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/healthcheck-path: /
+    # ✅ 80/443 같이 열기
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+
+    # ✅ ACM 인증서 ARN (us-east-1)
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:635014547592:certificate/8e8effb3-7264-452c-93ef-36fcd0cb53a7
+
+    # ✅ HTTP -> HTTPS 리다이렉트
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
     # ALB body size 제한 해제 (필요 시)
     alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
 spec:
