@@ -160,16 +160,9 @@ def upload():
 def delete_video(video_id):
     video = Video.query.get_or_404(video_id)
     
-    # 자신이 업로드한 동영상만 삭제 가능
-    if video.uploader != current_user.username:
-        # AJAX 요청인 경우 JSON 응답
-        if request.headers.get('Accept') and 'application/json' in request.headers.get('Accept', ''):
-            return jsonify({'success': False, 'message': '삭제 권한이 없습니다.'}), 403
-        flash('삭제 권한이 없습니다.', 'error')
-        return redirect(url_for('index'))
-    
     try:
         # 데이터베이스에서만 삭제 (S3 파일은 삭제하지 않음)
+        # 모든 로그인한 사용자가 삭제 가능
         db.session.delete(video)
         db.session.commit()
         # AJAX 요청인 경우 JSON 응답

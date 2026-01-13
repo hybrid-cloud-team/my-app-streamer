@@ -82,6 +82,14 @@
         background-color: #181818;
         position: relative;
         z-index: 5;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .video-info-left {
+        flex: 1;
+        min-width: 0;
     }
     .video-title {
         font-size: 16px;
@@ -99,20 +107,20 @@
         align-items: center;
     }
     .delete-btn {
-        margin-top: 8px;
         background-color: #e50914;
         color: #ffffff;
         border: none;
         border-radius: 4px;
-        padding: 6px 12px;
-        font-size: 12px;
+        padding: 4px 8px;
+        font-size: 11px;
         cursor: pointer;
         transition: background-color 0.3s;
-        width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 5px;
+        gap: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
     .delete-btn:hover {
         background-color: #f40612;
@@ -197,15 +205,16 @@
                 </div>
                 
                 <div class="video-info">
-                    <div class="video-title">{{ video.title }}</div>
-                    <div class="video-uploader">
-                        <i class="fa-regular fa-user" style="margin-right: 5px; font-size: 12px;"></i>
-                        {{ video.uploader if video.uploader else '익명' }}
+                    <div class="video-info-left">
+                        <div class="video-title">{{ video.title }}</div>
+                        <div class="video-uploader">
+                            <i class="fa-regular fa-user" style="margin-right: 5px; font-size: 12px;"></i>
+                            {{ video.uploader if video.uploader else '익명' }}
+                        </div>
                     </div>
-                    {% if current_user.is_authenticated and video.uploader == current_user.username %}
+                    {% if current_user.is_authenticated %}
                     <button class="delete-btn" onclick="event.stopPropagation(); deleteVideo({{ video.id }})" title="삭제">
                         <i class="fa-solid fa-trash"></i>
-                        삭제
                     </button>
                     {% endif %}
                 </div>
