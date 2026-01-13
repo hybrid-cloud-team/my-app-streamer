@@ -8,14 +8,12 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/healthcheck-path: /
-    # nginx ingress controller 사용 시 파일 크기 제한 해제
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/client-max-body-size: "0"
     # ALB body size 제한 해제 (필요 시)
     alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
 spec:
   rules:
-  - http:
+  - host: service.jellystream-hybrid.com
+    http:
       paths:
       - path: /
         pathType: Prefix
