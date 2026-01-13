@@ -13,13 +13,15 @@
             box-sizing: border-box;
         }
         body {
-            /* 요청하신 대로 기존 폰트 유지 */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #141414;
             color: #ffffff;
         }
+        /* Sticky Footer를 위한 Flexbox 설정 */
         .container {
             min-height: 100vh;
+            display: flex;          /* 추가: Flex 레이아웃 적용 */
+            flex-direction: column; /* 추가: 세로 방향 정렬 */
         }
         .nav {
             background-color: #000000;
@@ -35,21 +37,16 @@
             margin: 0 15px;
             font-weight: 500;
             transition: color 0.3s;
-            display: inline-flex; /* 아이콘과 텍스트 정렬을 위해 추가 */
+            display: inline-flex;
             align-items: center;
         }
         .nav a:hover {
             color: #e50914;
         }
-        /* 아이콘과 텍스트 사이 간격 추가 */
         .nav i {
             margin-right: 8px; 
         }
-        .nav-left {
-            display: flex;
-            align-items: center;
-        }
-        .nav-right {
+        .nav-left, .nav-right {
             display: flex;
             align-items: center;
         }
@@ -65,12 +62,12 @@
             display: inline-flex;
             align-items: center;
         }
-        /* 유저 아이콘 간격 */
         .user-info i {
             margin-right: 6px;
         }
         .content {
             padding: 20px 50px;
+            flex: 1; /* 추가: 남은 공간을 모두 차지하여 Footer를 하단으로 밀어냄 */
         }
         .flash-messages {
             margin-bottom: 20px;
@@ -87,6 +84,28 @@
         .flash.error {
             background-color: #dc3545;
             color: white;
+        }
+        
+        /* Footer 스타일 추가 */
+        .footer {
+            background-color: #000000;
+            padding: 30px 50px;
+            border-top: 1px solid #333;
+            color: #757575;
+            text-align: center;
+            font-size: 14px;
+        }
+        .footer p {
+            margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: #757575;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: #e50914;
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -135,6 +154,17 @@
             
             {% block content %}{% endblock %}
         </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Hybrid Cloud Streamer. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">고객센터</a>
+                <span>|</span>
+                <a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+        </footer>
     </div>
     {% block extra_js %}{% endblock %}
 </body>
