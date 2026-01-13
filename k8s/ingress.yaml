@@ -12,8 +12,7 @@ metadata:
     alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
 spec:
   rules:
-  - host: service.jellystream-hybrid.com
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
