@@ -8,6 +8,8 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "change-this-in-production") # 환경 변수에서 가져오기
+# 파일 업로드 크기 제한 설정 (2GB로 설정, 0은 무제한)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 * 1024  # 2GB
 
 # 환경 변수 설정
 DB_HOST = os.getenv("DB_HOST")
