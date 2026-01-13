@@ -10,29 +10,6 @@
         font-weight: 700;
         margin-bottom: 20px;
     }
-    .upload-section {
-        text-align: center;
-        margin-bottom: 50px;
-        padding: 30px;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-    }
-    .btn-upload {
-        background-color: #e50914;
-        color: #ffffff;
-        border: none;
-        padding: 15px 40px;
-        font-size: 18px;
-        font-weight: 700;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        text-decoration: none;
-        display: inline-block;
-    }
-    .btn-upload:hover {
-        background-color: #f40612;
-    }
     .videos-section {
         margin-top: 40px;
     }
@@ -146,12 +123,6 @@
     <h1 class="hero-title">인기 콘텐츠</h1>
 </div>
 
-{% if current_user.is_authenticated %}
-<div class="upload-section">
-    <h2 style="margin-bottom: 20px;">새로운 동영상을 업로드하세요</h2>
-    <a href="/upload" class="btn-upload">📤 동영상 업로드</a>
-</div>
-{% endif %}
 
 <div class="videos-section">
     {% if videos %}
