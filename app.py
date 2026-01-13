@@ -70,7 +70,7 @@ def index():
     for v in videos_db:
         try:
             url = s3_client.generate_presigned_url('get_object', Params={'Bucket': S3_BUCKET, 'Key': v.s3_key}, ExpiresIn=3600)
-            videos_display.append({'title': v.title, 's3_key': v.s3_key, 'url': url, 'uploader': v.uploader})
+            videos_display.append({'id': v.id, 'title': v.title, 's3_key': v.s3_key, 'url': url, 'uploader': v.uploader})
         except Exception as e:
             print(f"Error generating URL for video {v.id}: {e}")
             pass
@@ -153,6 +153,28 @@ def upload():
     
     # GET 요청 시 업로드 페이지 표시
     return render_template('upload.html')
+
+# 동영상 삭제
+@app.route('/delete/<int:video_id>', methods=['POST'])
+@login_required
+def delete_video(video_id):
+    video = Video.query.get_or_404(video_id)
+    
+    # 자신이 업로드한 동영상만 삭제 가능
+    if video.uploader != current_user.username:
+        flash('삭제 권한이 없습니다.', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        # 데이터베이스에서만 삭제 (S3 파일은 삭제하지 않음)
+        db.session.delete(video)
+        db.session.commit()
+        flash('동영상이 삭제되었습니다.', 'flash')
+    except Exception as e:
+        flash(f'삭제 오류: {str(e)}', 'error')
+        db.session.rollback()
+    
+    return redirect(url_for('index'))
 
 @app.route('/health')
 def health(): return "OK", 200

@@ -98,6 +98,32 @@
         display: flex;
         align-items: center;
     }
+    .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(229, 9, 20, 0.9);
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s, background-color 0.3s;
+        z-index: 20;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .video-card:hover .delete-btn {
+        opacity: 1;
+    }
+    .delete-btn:hover {
+        background-color: rgba(244, 6, 18, 1);
+    }
 
     /* 모달 스타일 유지 */
     .video-modal {
@@ -175,6 +201,12 @@
                     <div class="play-icon-overlay">
                         <i class="fa-solid fa-circle-play"></i>
                     </div>
+                    
+                    {% if current_user.is_authenticated and video.uploader == current_user.username %}
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteVideo({{ video.id }})" title="삭제">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    {% endif %}
                 </div>
                 
                 <div class="video-info">
@@ -247,5 +279,17 @@
             closeVideo();
         }
     });
+    
+    // 동영상 삭제 함수
+    function deleteVideo(videoId) {
+        if (confirm('정말 이 동영상을 삭제하시겠습니까?')) {
+            // 폼 생성하여 POST 요청
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/delete/${videoId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
 </script>
 {% endblock %}
