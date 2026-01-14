@@ -25,7 +25,7 @@ spec:
             memory: "256Mi" # 최소 256MB 메모리 보장
           limits:
             cpu: "500m"    # 최대 0.5 코어까지만 사용
-            memory: "1Gi" # 최대 1GB 메모리 사용
+            memory: "1Gi" # 최대 1GB 메모리 사용s
         env:
         - name: DB_HOST
           value: "hybrid-prod-db-2.c8bacacucmpz.us-east-1.rds.amazonaws.com"
